@@ -1,0 +1,45 @@
+---
+- name: Copy and deploy docker-compose files
+  hosts: ec2_instances
+  become: true
+  
+  tasks:
+    - name: Create application directory
+      file:
+        path: /opt/app
+        state: directory
+        owner: ubuntu
+        group: ubuntu
+        mode: '0755'
+
+    - name: Copy docker-compose directory contents
+      copy:
+        src: ../docker-compose/
+        dest: /opt/app
+        owner: ubuntu
+        group: ubuntu
+        mode: preserve
+      notify:
+        - restart app service
+
+    - name: Create systemd service file
+      copy:
+        src: files/docker-compose-app.service
+        dest: /etc/systemd/system/docker-compose-app.service
+        mode: '0644'
+      notify:
+        - restart app service
+
+
+  handlers:
+    - name: Reload systemd
+      systemd:
+        daemon_reload: yes
+      listen: restart app service  # <— key line
+
+    - name: Restart docker-compose service
+      systemd:
+        name: docker-compose-app
+        enabled: yes
+        state: restarted
+      listen: restart app service  # <— all these listen to the same handler name

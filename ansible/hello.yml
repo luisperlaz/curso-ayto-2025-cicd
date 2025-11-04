@@ -1,0 +1,13 @@
+---
+- name: Run simple command on EC2 instance
+  hosts: ec2_instances
+  gather_facts: false
+  
+  tasks:
+    - name: Execute echo command
+      shell: echo hello
+      register: hello_output
+
+    - name: Show command output
+      debug:
+        var: hello_output.stdout

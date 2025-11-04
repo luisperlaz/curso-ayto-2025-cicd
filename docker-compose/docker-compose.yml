@@ -1,0 +1,9 @@
+version: "3.8"
+
+services:
+  web:
+    image: nginx:1.28.0
+    container_name: nginx-min
+    ports:
+      - "80:80"
+
